@@ -41,26 +41,26 @@ class Board extends React.Component {
     );
   }
 }
-//------------------------------------------------------------------------------
-/*
-class Move extends React.Component {
+//------------------------------------------------------------------------------====================================================================
+
+class MoveButton extends React.Component {
   constructor(props){
     super(props);
-    this.state{
+    this.state = {
       selected: false,
-      column: null,
-      row: null
     };
   }
 
-  render()[
-
+  render(){
+    const desc = this.props.mov ?
+        'Go to move #' + this.props.mov + ' at (' + this.props.colum + ',' + this.props.row + ')':
+        'Go to game start ';
     return(
-
+      <button onClick={this.props.onClick} >{desc}</button>
     )
-  ]
-}*/
-//------------------------------------------------------------------------------
+  }
+}
+
 class Game extends React.Component {
   constructor(props) {
     super(props);
@@ -115,14 +115,12 @@ class Game extends React.Component {
           break;
         }
       }
-      var pos_x = Math.trunc((new_element_index/3)+1);
-      var pos_y = (new_element_index%3)+1;
-      const desc = move ?
-        'Go to move #' + move + ' at (' + pos_x + ',' + pos_y + ')':
-        'Go to game start';
+      var pos_x = Math.trunc((new_element_index/3));
+      var pos_y = (new_element_index%3);
+
       return (
         <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+          <MoveButton onClick={() => this.jumpTo(move)} mov = {move} colum={pos_y} row={pos_x} jump = {() => {this.jumpTo}}/>
         </li>
       );
     });
@@ -151,7 +149,7 @@ class Game extends React.Component {
   }
 }
 
-// ========================================
+// =======================================================================================================
 
 ReactDOM.render(<Game />, document.getElementById("root"));
 
