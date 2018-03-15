@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+
 function Square(props) {
   return (
     <button className="square" onClick={props.onClick}>
@@ -47,7 +48,7 @@ class MoveButton extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      selected: false,
+      selected: false
     };
   }
 
@@ -56,7 +57,8 @@ class MoveButton extends React.Component {
         'Go to move #' + this.props.mov + ' at (' + this.props.colum + ',' + this.props.row + ')':
         'Go to game start ';
     return(
-      <button onClick={this.props.onClick} >{desc}</button>
+      <button className={this.props.step === this.props.mov ? 'selected-move':console.log(+this.props.step)}
+      onClick={this.props.onClick} >{desc}</button>
     )
   }
 }
@@ -120,7 +122,7 @@ class Game extends React.Component {
 
       return (
         <li key={move}>
-          <MoveButton onClick={() => this.jumpTo(move)} mov = {move} colum={pos_y} row={pos_x} jump = {() => {this.jumpTo}}/>
+          <MoveButton step = {this.state.stepNumber} onClick={() => this.jumpTo(move)} mov = {move} colum={pos_y} row={pos_x} jump = {() => {this.jumpTo}}/>
         </li>
       );
     });
@@ -128,6 +130,8 @@ class Game extends React.Component {
     let status;
     if (winner) {
       status = "Winner: " + winner;
+    } else if (this.state.stepNumber===9) {
+      status = "It's a Draw"
     } else {
       status = "Next player: " + (this.state.xIsNext ? "X" : "O");
     }
