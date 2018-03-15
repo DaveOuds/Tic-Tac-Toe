@@ -53,13 +53,69 @@ class MoveButton extends React.Component {
   }
 
   render(){
-    const desc = this.props.mov ?
-        'Go to move #' + this.props.mov + ' at (' + this.props.colum + ',' + this.props.row + ')':
+    const desc = this.props.move ?
+        'Go to move #' + this.props.move + ' at (' + this.props.colum + ',' + this.props.row + ')':
         'Go to game start ';
     return(
-      <button className={this.props.step === this.props.mov ? 'selected-move':console.log(+this.props.step)}
-      onClick={this.props.onClick} >{desc}</button>
+      <button className={this.props.step === this.props.move ? 'selected-move': ''}
+              onClick={this.props.onClick} >{desc}</button>
     )
+  }
+}
+
+class MoveList extends React.Component{
+  constructor(props) {
+    super(props);
+    this.state = {
+      history: this.props.history,
+      reverse: false
+    }
+  }
+
+  updateHistory(){
+    this.setState({
+      history:this.props.history
+    })
+  }
+
+  reverseMoves(moves){
+    this.setState({
+      reverse: !this.state.reverse
+    })
+  }
+
+  render(){
+    var new_element_index = 0;
+    this.state.history !== this.props.history ?   this.setState({
+      history:this.props.history
+    }) : ''
+
+    const moves = this.state.history.map((step, move, arr) => {
+      for (var i=0, len = arr[move].squares.length; i < len; i++){
+        if (arr[move].squares[i] !== arr[(move <= 0 ? 0 : move-1)].squares[i]){
+          new_element_index = i;
+          break;
+        }
+      }
+      var pos_x = Math.trunc((new_element_index/3));
+      var pos_y = (new_element_index%3);
+      return (
+        <li key={move}>
+          <MoveButton step = {this.props.stepNumber}
+                      onClick={() => this.props.onClick(move)}
+                      move = {move}
+                      colum={pos_y}
+                      row={pos_x} />
+        </li>
+      );
+    });
+
+    return (
+      <div>
+        <button onClick={()=> this.reverseMoves()} > Reverse Moves </button>
+        <ul> {this.state.reverse === true ? moves.reverse() : moves} </ul>
+      </div>
+    );
   }
 }
 
@@ -69,11 +125,13 @@ class Game extends React.Component {
     this.state = {
       history: [
         {
-          squares: Array(9).fill(null)
+          squares: Array(9).fill(null),
+
         }
       ],
       stepNumber: 0,
-      xIsNext: true
+      xIsNext: true,
+      moveHistory: []
     };
   }
 
@@ -96,7 +154,7 @@ class Game extends React.Component {
     });
   }
 
-  jumpTo(step) {
+  jumpTo(step){
     this.setState({
       stepNumber: step,
       xIsNext: (step % 2) === 0
@@ -107,25 +165,6 @@ class Game extends React.Component {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
-
-    var new_element_index = 0;
-
-    const moves = history.map((step, move, arr) => {
-      for (var i=0, len = arr[move].squares.length; i < len; i++){
-        if (arr[move].squares[i] !== arr[(move <= 0 ? 0 : move-1)].squares[i]){
-          new_element_index = i;
-          break;
-        }
-      }
-      var pos_x = Math.trunc((new_element_index/3));
-      var pos_y = (new_element_index%3);
-
-      return (
-        <li key={move}>
-          <MoveButton step = {this.state.stepNumber} onClick={() => this.jumpTo(move)} mov = {move} colum={pos_y} row={pos_x} jump = {() => {this.jumpTo}}/>
-        </li>
-      );
-    });
 
     let status;
     if (winner) {
@@ -146,7 +185,11 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
-          <ol>{moves}</ol>
+            <MoveList
+              history={this.state.history}
+              stepNumber={this.state.stepNumber}
+              onClick={(i) => this.jumpTo(i)}
+              />
         </div>
       </div>
     );
